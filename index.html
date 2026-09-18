@@ -1,19 +1,584 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<title>Тестовая страница</title>
+<title>Ловушка тревоги</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #f1f5f9; }
-  .card { text-align: center; }
-  h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-  p { color: #94a3b8; }
+  body {
+    margin: 0;
+    --bg: #FAF6F0;
+    --bg-soft: #F2EAD9;
+    --card: #FFFFFF;
+    --ink: #2B2622;
+    --ink-soft: #6B6255;
+    --line: #E6DCC8;
+    --clay: #C4623B;
+    --clay-dark: #A34F2C;
+    --sage: #3F5D54;
+    --sage-dark: #2C4038;
+    --warn-bg: #FBEFE6;
+    --warn-line: #E3C4A0;
+    --warn-ink: #7A4321;
+    font-family: 'Work Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--sage); }
+  a:hover { color: var(--sage-dark); }
+  h1, h2, h3 { font-family: 'Lora', Georgia, serif; font-weight: 600; line-height: 1.25; margin: 0; color: var(--ink); }
+  p { margin: 0; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 28px; }
+  .wrap-narrow { max-width: 620px; margin: 0 auto; padding: 0 28px; }
+  .section { padding: 72px 0; }
+  .section-soft { background: var(--bg-soft); }
+  .stack { display: flex; flex-direction: column; }
+  .lead { font-size: 19px; color: var(--ink); }
+  .muted { color: var(--ink-soft); }
+  .eyebrow {
+    font-family: 'Work Sans', sans-serif; font-weight: 600; font-size: 13px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--sage);
+  }
+  .check-list { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+  .check-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 17px; }
+  .check-list svg { flex-shrink: 0; margin-top: 3px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 32px; box-shadow: 0 1px 2px rgba(43,38,34,0.04);
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--clay); color: #FFFFFF; font-family: 'Work Sans', sans-serif;
+    font-weight: 600; font-size: 17px; padding: 17px 36px; border-radius: 9px;
+    text-decoration: none; border: none; cursor: pointer; transition: background 0.15s ease;
+    min-height: 44px;
+  }
+  .btn-primary:hover { background: var(--clay-dark); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; color: var(--sage-dark); font-family: 'Work Sans', sans-serif;
+    font-weight: 600; font-size: 16px; padding: 15px 32px; border-radius: 9px;
+    text-decoration: none; border: 2px solid var(--sage); cursor: pointer;
+    transition: background 0.15s ease; min-height: 44px;
+  }
+  .btn-secondary:hover { background: rgba(63,93,84,0.07); }
+  .cta-row { display: flex; justify-content: center; margin-top: 36px; flex-wrap: wrap; }
+  .badge {
+    display: inline-block; font-family: 'Work Sans', sans-serif; font-weight: 600;
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--sage-dark); background: rgba(63,93,84,0.09);
+    padding: 5px 12px; border-radius: 100px; margin-bottom: 14px;
+  }
+  .timer-box {
+    display: inline-flex; gap: 10px; align-items: baseline; font-family: 'Lora', serif;
+    font-weight: 600; font-size: 40px; color: var(--clay-dark); letter-spacing: 0.02em;
+    background: var(--card); border: 1px solid var(--warn-line); border-radius: 12px;
+    padding: 18px 28px; font-variant-numeric: tabular-nums;
+  }
+  .timer-label { font-family: 'Work Sans', sans-serif; font-weight: 500; font-size: 13px; color: var(--ink-soft); margin-top: 6px; text-align: center; }
+  .divider { height: 1px; background: var(--line); border: none; margin: 0; }
+  .value-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid var(--line);
+  }
+  .value-row:last-of-type { border-bottom: none; }
+  .value-name { display: flex; align-items: center; gap: 12px; font-size: 16px; }
+  .value-price { color: var(--ink-soft); font-size: 15px; white-space: nowrap; }
+  .quote-block { border-left: 3px solid var(--line); padding-left: 20px; color: var(--ink-soft); font-style: italic; }
+  .warn-card {
+    background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px;
+    padding: 28px 32px; display: flex; gap: 16px; align-items: flex-start;
+  }
+  .warn-card p { color: var(--warn-ink); }
+  .placeholder-card {
+    border: 1.5px dashed var(--line); border-radius: 12px; padding: 28px;
+    color: var(--ink-soft); font-style: italic; text-align: center;
+  }
+  .two-col { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+  .bonus-num {
+    width: 40px; height: 40px; border-radius: 100px; background: var(--sage);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-family: 'Lora', serif; font-weight: 600; font-size: 17px; flex-shrink: 0;
+  }
+  footer { border-top: 1px solid var(--line); }
+  @media (max-width: 640px) {
+    .section { padding: 48px 0; }
+    .wrap, .wrap-narrow { padding: 0 20px; }
+    h1 { font-size: 30px !important; }
+    h2 { font-size: 24px !important; }
+    .lead { font-size: 17px; }
+    .two-col { grid-template-columns: 1fr; }
+    .timer-box { font-size: 30px; padding: 14px 20px; gap: 6px; }
+    .card { padding: 24px; }
+  }
 </style>
-</head>
-<body>
-  <div class="card">
-    <h1>🚀 Это работает!</h1>
-    <p>Тестовый сайт, опубликованный через GitHub Pages.</p>
-  </div>
-</body>
-</html>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="ic-check" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-cross" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24">
+    <path d="M12 2.5l7.5 3v6c0 5-3.2 8.4-7.5 10-4.3-1.6-7.5-5-7.5-10v-6l7.5-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-alert" viewBox="0 0 24 24">
+    <path d="M12 3.5l9.5 16.5H2.5L12 3.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M12 10v4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="12" cy="17.3" r="1" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<div style="width: 100%; background: var(--bg);">
+
+  <!-- HERO -->
+  <section class="section" style="padding-top: 56px;">
+    <div class="wrap-narrow stack" style="gap: 28px;">
+      <p class="lead">Вы стараетесь не тревожиться — а тревожитесь еще больше. Стараетесь взять себя в руки — а внутри трясет сильнее. Проверяете себя лишний раз, чтобы уж точно убедиться, что все в порядке — а тревога от этого только растет.</p>
+      <p class="lead" style="font-weight: 600;">Вы стараетесь как лучше. А получается только хуже.</p>
+      <p class="muted" style="font-size: 17px;">Это не потому, что с вами что-то не так. Это потому, что вы, скорее всего, попали в ловушку замкнутого круга: то, что вы делаете, чтобы избавиться от тревоги, на самом деле ее и подпитывает.</p>
+      <p class="muted" style="font-size: 17px;">Чем больше проверяете тело — тем чувствительнее становитесь к любому сигналу. Чем сильнее контролируете — тем страшнее потерять контроль. Чем упорнее боретесь со страхом — тем громче он звучит.</p>
+      <p class="muted" style="font-size: 17px;">Так устроена любая тревожная ловушка. И пока вы боретесь привычным способом, из круга не выйти — какой бы сильной ни была ваша воля.</p>
+
+      <h1 style="font-size: 38px; margin-top: 12px;">«Выйти из ловушки тревоги и за 7 дней почувствовать результат» — практикум-эксперимент, в котором вы находите свою ловушку и на собственном опыте убеждаетесь: можно по-другому</h1>
+
+      <div class="two-col" style="margin-top: 8px;">
+        <div class="stack" style="gap: 12px;">
+          <div class="eyebrow">И для этого не нужно</div>
+          <ul class="check-list">
+            <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>таблетки</span></li>
+            <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>запись к психотерапевту на два месяца вперед</span></li>
+            <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>резко отказываться от привычных способов держаться</span></li>
+            <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>бесконечные лекции по психологии</span></li>
+            <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>в очередной раз «понять умом» — умом вы, скорее всего, и так уже во многом разобрались</span></li>
+          </ul>
+        </div>
+        <div class="stack" style="gap: 12px;">
+          <div class="eyebrow">Достаточно</div>
+          <ul class="check-list">
+            <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>телефона или компьютера</span></li>
+            <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>15-20 минут в день</span></li>
+            <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>готовности попробовать один непривычный шаг</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 8px;">
+        <p style="font-weight: 600; margin-bottom: 16px;">Проходите тест, получаете свою ловушку — и через 7 дней у вас на руках:</p>
+        <ul class="check-list">
+          <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>персональная карта своей тревожной ловушки, а не общая теория для всех</span></li>
+          <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>1-2 действия, подобранных конкретно под ваш случай</span></li>
+          <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>первый ощутимый сдвиг уже на 1-2 день, а не через полгода</span></li>
+          <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>дневник с цифрами вместо смутного «вроде полегче»</span></li>
+          <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>понятный план, что делать дальше</span></li>
+        </ul>
+      </div>
+
+      <div class="cta-row" style="margin-top: 4px;">
+        <a href="#price" class="btn-primary">Забрать практикум за 1 490 руб.</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN -->
+  <section class="section section-soft">
+    <div class="wrap-narrow stack" style="gap: 22px;">
+      <h2 style="font-size: 30px;">Головой вы все понимаете. Легче почему-то не становится</h2>
+      <p class="lead">Замечали, что чем больше стараетесь, тем тяжелее становится? Так бывает чаще, чем кажется.</p>
+
+      <ul class="check-list">
+        <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Стараетесь не думать о плохом — а мысль возвращается снова и снова</span></li>
+        <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Держите ситуацию под полным контролем — и боитесь той секунды, когда контроль ослабнет</span></li>
+        <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Перепроверяете себя лишний раз «на всякий случай» — а сигнал становится только громче</span></li>
+        <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Разбираетесь в причинах, читаете, анализируете — и застреваете в голове вместо того, чтобы что-то изменить</span></li>
+        <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Избегаете того, что пугает — и мир вокруг постепенно сужается</span></li>
+      </ul>
+
+      <p class="lead" style="font-weight: 600;">Знакомо хотя бы одно?</p>
+      <p class="muted" style="font-size: 17px;">Если да, то дело, скорее всего, не в том, что вы недостаточно стараетесь. А в том, что сами способы, которыми вы пытаетесь себе помочь, эту тревогу и поддерживают. Это не про силу воли и не про то, что с вами что-то не так — так устроена тревога у многих людей, я вижу это в своей практике регулярно.</p>
+      <p class="muted" style="font-size: 17px;">Хочу сказать сразу: вам не нужно менять характер, годами разбираться в детстве или ждать полгода терапии, чтобы это проверить. Достаточно на своем опыте увидеть механизм — и сделать один-два непривычных шага.</p>
+
+      <div class="card" style="margin-top: 8px;">
+        <p style="font-weight: 600; margin-bottom: 16px;">Что вам точно не понадобится, чтобы почувствовать разницу:</p>
+        <ul class="check-list">
+          <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>вести дневник тревоги месяцами в поисках закономерности</span></li>
+          <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>читать очередную статью «5 способов справиться с тревогой» — вы наверняка уже прочитали не одну</span></li>
+          <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>резко бросать лекарства или отказываться от помощи близких без всякой замены</span></li>
+          <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>ждать момента, когда «наконец почувствуете полную готовность» — этот момент, как правило, не наступает</span></li>
+          <li><svg width="20" height="20" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>гадать, подойдет ли вам общий метод, если ваш случай кажется особенным</span></li>
+        </ul>
+      </div>
+
+      <p class="lead" style="font-weight: 600;">Можете выдохнуть. Ничего из этого делать не придется.</p>
+
+      <p class="muted" style="font-size: 17px;">В своей практике я работаю в подходе краткосрочной стратегической терапии — беру тех клиентов, от которых иногда отказываются другие специалисты: с паническими атаками, навязчивостями, фобиями.</p>
+      <p class="muted" style="font-size: 17px;">Обычно первые изменения заметны уже после первой-второй сессии. Не потому, что я умею что-то особенное, а потому, что метод так устроен: не разговоры о причинах, а конкретное действие, которое меняет вашу реакцию здесь и сейчас.</p>
+      <p style="font-size: 17px; font-weight: 600;">Выйти из ловушки тревоги можно тем же способом — только в формате самостоятельного практикума на 7 дней вместо личных сессий.</p>
+    </div>
+  </section>
+
+  <!-- VEHICLE -->
+  <section class="section">
+    <div class="wrap-narrow stack" style="gap: 22px;">
+      <h2 style="font-size: 28px;">Наконец-то привычка бороться с собой перестает управлять вашим днем</h2>
+      <h3 style="font-size: 22px; margin-top: 8px;">Как это работает?</h3>
+      <ul class="check-list">
+        <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Проходите тест из 15 вопросов и получаете свою ловушку — одну из пяти</span></li>
+        <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Получаете 1-2 действия, подобранных именно под нее</span></li>
+        <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Выполняете первое действие и отмечаете тревогу по шкале 0-10 до и после — сами увидите разницу</span></li>
+        <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Каждый день — один шаг, 15-20 минут, без нагрузки на и так уставший ресурс</span></li>
+        <li><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>На 7 день — разбор результата и понятный план, что дальше</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- AUTHOR -->
+  <section class="section section-soft">
+    <div class="wrap-narrow">
+      <div class="card" style="display: flex; gap: 28px; align-items: flex-start;">
+        <div style="width: 88px; height: 88px; border-radius: 100px; background: var(--sage); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Lora', serif; font-weight: 600; font-size: 30px; flex-shrink: 0;">ТС</div>
+        <div class="stack" style="gap: 14px;">
+          <h3 style="font-size: 22px;">Кто ведет этот практикум</h3>
+          <p style="font-size: 17px;">Меня зовут <strong>Сосновская Татьяна Ивановна</strong>. Я психолог, работаю в подходе краткосрочной стратегической терапии.</p>
+          <p class="muted" style="font-size: 16px;">На практике этот подход работает эффективнее классической когнитивно-поведенческой терапии — потому что использует парадоксальные техники и работает не только с сознательными установками, но и на грани бессознательного, там, куда обычные объяснения просто не достают.</p>
+          <p class="muted" style="font-size: 16px;">Именно поэтому в практикуме нет разговоров о причинах — только конкретные предписания, которые меняют реакцию напрямую.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELIVERABLES -->
+  <section class="section">
+    <div class="wrap-narrow stack" style="gap: 24px;">
+      <h2 style="font-size: 28px;">Что конкретно вы получите?</h2>
+      <div class="stack" style="gap: 18px;">
+        <div class="card">
+          <h3 style="font-size: 18px; margin-bottom: 8px;">Тест «Какая у тебя ловушка»</h3>
+          <p class="muted">За 5 минут — не общая теория, а ответ на вопрос, который вы наверняка себе задавали: «Почему это происходит именно со мной и именно так?»</p>
+        </div>
+        <div class="card">
+          <h3 style="font-size: 18px; margin-bottom: 8px;">Карта 5 ловушек</h3>
+          <p class="muted">Объясняю, почему прежние попытки «разобраться» не помогали — потому что сама попытка понять причину чаще всего и была частью ловушки.</p>
+        </div>
+        <div class="card" style="border-color: var(--sage);">
+          <h3 style="font-size: 18px; margin-bottom: 8px;">Персональный трек действий</h3>
+          <p class="muted">Главное в практикуме. 1-2 действия под вашу ловушку, которые на собственном опыте показывают: то, что казалось неуправляемым, ведет себя иначе, чем вы привыкли думать.</p>
+        </div>
+        <div class="card">
+          <h3 style="font-size: 18px; margin-bottom: 8px;">Трекер состояния 0-10</h3>
+          <p class="muted">Отмечаете тревогу до и после каждого действия — чтобы видеть результат в цифрах, а не верить мне на слово.</p>
+        </div>
+        <div class="card">
+          <h3 style="font-size: 18px; margin-bottom: 8px;">День 7: что дальше</h3>
+          <p class="muted">Не оставляю вас один на один с результатом. Разбираем, что изменилось и как действовать дальше — независимо от того, получилось все или только начало получаться.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICE -->
+  <section class="section section-soft" id="price">
+    <div class="wrap-narrow stack" style="gap: 22px;">
+      <h2 style="font-size: 28px;">Сколько стоит практикум «Выйти из ловушки тревоги и за 7 дней почувствовать результат»</h2>
+      <p class="lead">Одна личная консультация у меня стоит 5 000 рублей. И это только первая встреча — чтобы разобраться, с чего вообще начать.</p>
+      <p class="muted" style="font-size: 17px;">Можно, конечно, попробовать разобраться самостоятельно. Почитать, послушать, поискать закономерность. Вы наверняка уже пробовали — и знаете, чем это обычно заканчивается: временным облегчением и тем же самым чувством через неделю.</p>
+      <p style="font-size: 17px; font-weight: 600;">Так или иначе, дешевле одной встречи с психологом это не выйдет.</p>
+
+      <div class="stack" style="gap: 18px; margin-top: 8px;">
+        <p class="quote-block" style="font-size: 17px;">Если бы за 7 дней вы получили персональную карту своей тревоги и первый подтвержденный сдвиг — без таблеток и без месяца ожидания записи — стоило бы это дороже одной консультации?</p>
+        <p class="quote-block" style="font-size: 17px;">Если бы вам больше не пришлось гадать, подходит ли вам общий метод, а сразу знать, какая именно ловушка держит вас — это ведь тоже чего-то стоит?</p>
+        <p class="quote-block" style="font-size: 17px;">И если бы вы могли возвращаться к материалам практикума каждый раз, когда тревога обостряется, а не проходить его один раз и забывать — согласитесь, это делает практикум ценнее?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STRATEGIC REASON -->
+  <section class="section">
+    <div class="wrap-narrow stack" style="gap: 18px; text-align: center; align-items: center;">
+      <p class="lead">Но я не буду брать с вас полную стоимость.</p>
+      <p class="muted" style="font-size: 17px;">Это мой первый практикум в таком формате. И моя цель сейчас не заработать по максимуму, а чтобы как можно больше людей на своем опыте убедились: тревогой можно управлять иначе, чем кажется.</p>
+      <p style="font-size: 17px;">Поэтому сейчас практикум стоит <strong>1 490 рублей</strong> — заметно меньше, чем если бы вы оплачивали каждую его часть по отдельности (ниже покажу, из чего он складывается).</p>
+      <p class="muted" style="font-size: 16px;">Цена такая, потому что продукт новый. После 1 января она вырастет.</p>
+      <p class="muted" style="font-size: 16px; max-width: 520px;">Если этот метод даст вам реальное облегчение за 7 дней — буду рада, если вы вернетесь ко мне дальше, на личную консультацию, когда захотите закрепить результат или разобраться глубже.</p>
+      <p class="muted" style="font-size: 15px;">Доступ приходит на почту сразу после оплаты.</p>
+      <div class="cta-row">
+        <button type="button" class="btn-primary">Получить доступ за 1 490 руб.</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BONUSES -->
+  <section class="section section-soft">
+    <div class="wrap-narrow stack" style="gap: 28px;">
+      <div class="stack" style="gap: 10px; text-align: center; align-items: center;">
+        <p class="lead" style="font-weight: 600;">И это еще не все.</p>
+        <p class="muted" style="font-size: 16px;">Если вы заберете практикум в течение 24 часов, к нему добавляется еще пять важных бонусов — потом бонусы сгорят, и практикум останется уже без них.</p>
+      </div>
+
+      <div class="card" style="display: flex; gap: 18px;">
+        <div class="bonus-num">1</div>
+        <div class="stack" style="gap: 10px;">
+          <h3 style="font-size: 19px;">«Разбор всех пяти ловушек»</h3>
+          <p class="muted">Тест показал вам одну ловушку. Но что, если вы узнаете себя не в одной, а сразу в двух-трех? Такое бывает часто — и без полной картины сложно понять, за что хвататься в первую очередь.</p>
+          <ul class="check-list">
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>видео на 20 минут с разбором каждой из пяти</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>узнаваемые бытовые примеры для каждой — не абстрактная теория</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>как ловушки связаны друг с другом</span></li>
+          </ul>
+          <p style="font-size: 15px;"><strong>Результат:</strong> видите полную карту своих тревожных реакций, а не только одну грань.</p>
+        </div>
+      </div>
+
+      <div class="card" style="display: flex; gap: 18px;">
+        <div class="bonus-num">2</div>
+        <div class="stack" style="gap: 10px;">
+          <h3 style="font-size: 19px;">«Скорая помощь»</h3>
+          <p class="muted">Даже если вы все поняли умом, остается вопрос, который не отпускает: «А что если в момент настоящей паники я забуду вообще все?» Это самый частый страх на этом этапе.</p>
+          <ul class="check-list">
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>голосовая аудио-инструкция на 2-3 минуты</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>работает прямо в моменте пика тревоги — просто нажимаете play</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>не нужно ничего вспоминать, только следовать голосу</span></li>
+          </ul>
+          <p style="font-size: 15px;"><strong>Результат:</strong> у вас есть готовое действие на самый страшный момент, а не надежда, что вспомните технику.</p>
+        </div>
+      </div>
+
+      <div class="card" style="display: flex; gap: 18px;">
+        <div class="bonus-num">3</div>
+        <div class="stack" style="gap: 10px;">
+          <h3 style="font-size: 19px;">«Инструкция для близких»</h3>
+          <p class="muted">Близкие часто хотят помочь — и невольно делают хуже: провожают туда, куда вы могли бы дойти сами, отвечают за вас, оберегают от всего подряд. А вам потом стыдно, что без них никак.</p>
+          <ul class="check-list">
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>готовые фразы, что говорить и чего не делать</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>можно просто переслать мужу, маме, партнеру</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>2 страницы, ничего лишнего</span></li>
+          </ul>
+          <p style="font-size: 15px;"><strong>Результат:</strong> близкие перестают неосознанно поддерживать вашу тревогу, а вы перестаете усугублять свое состояние.</p>
+        </div>
+      </div>
+
+      <div class="card" style="display: flex; gap: 18px;">
+        <div class="bonus-num">4</div>
+        <div class="stack" style="gap: 10px;">
+          <h3 style="font-size: 19px;">«30 секунд»</h3>
+          <p class="muted">В момент паники разбираться некогда. Открывать весь практикум заново, искать нужный урок — точно не вариант.</p>
+          <ul class="check-list">
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>один экран, три шага, без лишнего текста</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>сохраняется прямо в заметки на телефоне</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>всегда под рукой, даже без интернета</span></li>
+          </ul>
+          <p style="font-size: 15px;"><strong>Результат:</strong> за 10 секунд вспоминаете, что делать, вместо того чтобы теряться.</p>
+        </div>
+      </div>
+
+      <div class="card" style="display: flex; gap: 18px;">
+        <div class="bonus-num">5</div>
+        <div class="stack" style="gap: 10px;">
+          <h3 style="font-size: 19px;">«Что НЕ делать»</h3>
+          <p class="muted">Вы наверняка уже пробовали что-то «успокаивающее» — дыхательные техники, отвлечение, разговор с близкими «на всякий случай». А толку не было. И дело не в вас.</p>
+          <ul class="check-list">
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>7 привычных «успокаивающих» способов, которые не работают</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>короткое объяснение, почему каждый из них держит вас в ловушке</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>1 страница, 5 минут на чтение</span></li>
+          </ul>
+          <p style="font-size: 15px;"><strong>Результат:</strong> перестаете тратить силы на то, что объективно не могло сработать, и понимаете, что это не ваша вина.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUE STACK -->
+  <section class="section">
+    <div class="wrap-narrow stack" style="gap: 24px;">
+      <h2 style="font-size: 28px; text-align: center;">Давайте подытожим</h2>
+      <div class="card">
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Тест «Какая у тебя ловушка»</span></div><div class="value-price">990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Карта 5 ловушек</span></div><div class="value-price">1 490 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Персональный трек действий</span></div><div class="value-price">2 990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Трекер состояния 0-10</span></div><div class="value-price">490 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>День 7: что дальше</span></div><div class="value-price">990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 1: «Разбор всех пяти ловушек»</span></div><div class="value-price">1 490 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 2: «Скорая помощь»</span></div><div class="value-price">890 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 3: «Инструкция для близких»</span></div><div class="value-price">990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 4: «30 секунд»</span></div><div class="value-price">690 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 5: «Что НЕ делать»</span></div><div class="value-price">590 руб.</div></div>
+        <hr class="divider" style="margin: 8px 0;">
+        <div class="value-row" style="border: none; padding-bottom: 0;">
+          <div class="value-name" style="font-weight: 600; font-size: 18px;">Суммарная ценность</div>
+          <div style="font-family: 'Lora', serif; font-weight: 600; font-size: 20px; color: var(--ink-soft); text-decoration: line-through;">11 600 руб.</div>
+        </div>
+      </div>
+
+      <div class="stack" style="gap: 8px; text-align: center; align-items: center;">
+        <p class="muted">Но платить всю эту сумму сегодня не придется.</p>
+        <p style="font-size: 20px;">Заберите все это, включая бонусы, в течение 24 часов — по цене запуска, <strong style="color: var(--clay-dark);">1 490 руб.</strong> Это на 10 110 рублей дешевле.</p>
+      </div>
+      <div class="cta-row">
+        <button type="button" class="btn-primary">Забрать практикум за 1 490 руб.</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUARANTEE -->
+  <section class="section section-soft">
+    <div class="wrap-narrow">
+      <div class="card" style="display: flex; gap: 24px; align-items: flex-start;">
+        <svg width="44" height="44" style="color: var(--sage); flex-shrink: 0;"><use href="#ic-shield"/></svg>
+        <div class="stack" style="gap: 14px;">
+          <h2 style="font-size: 24px;">«Без «а вдруг не сработает»»</h2>
+          <p class="lead">Я беру риски на себя.</p>
+          <p class="muted" style="font-size: 16px;">Я знаю, как это бывает: читаете описание и думаете — «звучит неплохо, но что если мне не подойдет?», «а вдруг это просто еще один курс, который полежит непрочитанным?», «а если это вообще не про мой случай?» Прекрасно вас понимаю.</p>
+          <p style="font-size: 16px; font-weight: 600;">Поэтому у вас есть целых 14 дней на «подумать».</p>
+          <ul class="check-list">
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Пройдите тест</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Выполните первое действие</span></li>
+            <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Заполните трекер хотя бы один раз</span></li>
+          </ul>
+          <p class="muted" style="font-size: 16px;">Если в любой момент и абсолютно по любой причине захотите вернуть деньги — просто напишите на <a href="mailto:hello@example.com">hello@example.com</a>, и получите их назад без вопросов.</p>
+          <ul class="check-list">
+            <li><svg width="18" height="18" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Даже если передумаете через минуту после покупки</span></li>
+            <li><svg width="18" height="18" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Даже если просто решите, что формат не ваш</span></li>
+            <li><svg width="18" height="18" style="color: var(--ink-soft);"><use href="#ic-cross"/></svg><span>Даже если почувствуете, что «не зашло»</span></li>
+          </ul>
+          <p class="muted" style="font-size: 16px;">Напишите — и в течение 24 часов деньги вернутся к вам. Вы либо получаете рабочий инструмент, либо не платите ни копейки. А бонусы в любом случае остаются у вас.</p>
+          <p style="font-size: 16px; font-weight: 600;">Или практикум и все бонусы в руках — или деньги назад. Риск полностью на мне.</p>
+          <div>
+            <button type="button" class="btn-secondary">Попробовать без риска</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTRAINDICATIONS -->
+  <section class="section">
+    <div class="wrap-narrow">
+      <div class="warn-card">
+        <svg width="26" height="26" style="color: var(--warn-ink); flex-shrink: 0; margin-top: 2px;"><use href="#ic-alert"/></svg>
+        <div class="stack" style="gap: 8px;">
+          <h3 style="font-size: 17px; color: var(--warn-ink);">Кому практикум не подходит</h3>
+          <p style="font-size: 15px;">Если у вас тяжелые сердечно-сосудистые заболевания, текущий психоз или острая суицидальная симптоматика — этот практикум не заменяет очную помощь. Пожалуйста, обратитесь напрямую к психиатру или на личную консультацию.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section class="section section-soft">
+    <div class="wrap-narrow stack" style="gap: 20px;">
+      <h2 style="font-size: 26px; text-align: center;">Что говорят клиенты</h2>
+      <div class="two-col">
+        <div class="placeholder-card">Отзыв появится после первого потока</div>
+        <div class="placeholder-card">Отзыв появится после первого потока</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- URGENCY -->
+  <section class="section">
+    <div class="wrap-narrow stack" style="gap: 20px; text-align: center; align-items: center;">
+      <h2 style="font-size: 26px;">Важно: бонусы ограничены по времени</h2>
+      <p class="muted" style="font-size: 16px; max-width: 520px;">У вас есть 24 часа, чтобы забрать практикум вместе со всеми пятью бонусами. После этого бонусы сгорят — сам практикум останется доступен, но уже без них.</p>
+      <div class="stack" style="align-items: center;">
+        <div class="timer-box">
+          <span id="bonusTimer">24:00:00</span>
+        </div>
+        <div class="timer-label">часов : минут : секунд до сгорания бонусов</div>
+      </div>
+      <p class="muted" style="font-size: 15px; max-width: 520px;">И отдельно: цена 1 490 рублей действует до 1 января 2027. После этого она вырастет — я правда подниму цену, когда практикум перестанет быть новым.</p>
+      <p style="font-size: 16px; font-weight: 600;">Так что лучше не откладывать.</p>
+    </div>
+  </section>
+
+  <!-- VALUE STACK REPEAT -->
+  <section class="section section-soft">
+    <div class="wrap-narrow stack" style="gap: 24px;">
+      <h2 style="font-size: 26px; text-align: center;">Забирайте</h2>
+      <div class="card">
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Тест «Какая у тебя ловушка»</span></div><div class="value-price">990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Карта 5 ловушек</span></div><div class="value-price">1 490 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Персональный трек действий</span></div><div class="value-price">2 990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Трекер состояния 0-10</span></div><div class="value-price">490 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>День 7: что дальше</span></div><div class="value-price">990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 1: «Разбор всех пяти ловушек»</span></div><div class="value-price">1 490 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 2: «Скорая помощь»</span></div><div class="value-price">890 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 3: «Инструкция для близких»</span></div><div class="value-price">990 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 4: «30 секунд»</span></div><div class="value-price">690 руб.</div></div>
+        <div class="value-row"><div class="value-name"><svg width="20" height="20" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 5: «Что НЕ делать»</span></div><div class="value-price">590 руб.</div></div>
+        <hr class="divider" style="margin: 8px 0;">
+        <div class="value-row" style="border: none; padding-bottom: 0;">
+          <div class="value-name" style="font-weight: 600; font-size: 18px;">Суммарная ценность</div>
+          <div style="font-family: 'Lora', serif; font-weight: 600; font-size: 20px; color: var(--ink-soft); text-decoration: line-through;">11 600 руб.</div>
+        </div>
+      </div>
+      <p class="lead" style="text-align: center;">Сегодня — всего <strong style="color: var(--clay-dark);">1 490 руб.</strong>, и еще успеваете забрать бонусы, пока не истекли 24 часа.</p>
+      <div class="cta-row">
+        <button type="button" class="btn-primary">Забрать практикум за 1 490 руб.</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PS -->
+  <section class="section">
+    <div class="wrap-narrow stack" style="gap: 16px;">
+      <h2 style="font-size: 22px;">P.S.</h2>
+      <p style="font-size: 16px;">После оплаты 1 490 руб. вы получите:</p>
+      <ul class="check-list">
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Тест «Какая у тебя ловушка»</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Карта 5 ловушек</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Персональный трек действий</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Трекер состояния 0-10</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>День 7: что дальше</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 1: «Разбор всех пяти ловушек»</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 2: «Скорая помощь»</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 3: «Инструкция для близких»</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 4: «30 секунд»</span></li>
+        <li><svg width="18" height="18" style="color: var(--sage);"><use href="#ic-check"/></svg><span>Бонус 5: «Что НЕ делать»</span></li>
+      </ul>
+      <p class="muted" style="font-size: 15px;">P.P.S. Помните: вы защищены 14 днями и в любой момент можете вернуть деньги.</p>
+      <p class="muted" style="font-size: 15px;">P.P.P.S. Бонусы доступны только в течение 24 часов с этого момента — потом они сгорят.</p>
+      <p class="muted" style="font-size: 15px;">P.P.P.P.S. Цена 1 490 руб. действует только до 1 января 2027. После этого практикум подорожает.</p>
+      <p style="font-size: 17px; font-weight: 600; margin-top: 8px;">Узнали себя хотя бы в одном описании выше? Тогда, думаю, вы уже знаете, что делать.</p>
+      <div class="cta-row" style="justify-content: flex-start;">
+        <button type="button" class="btn-primary">Забрать практикум за 1 490 руб.</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap" style="padding: 28px; text-align: center;">
+      <p class="muted" style="font-size: 13px;">Сосновская Татьяна Ивановна · психолог, краткосрочная стратегическая терапия</p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var key = 'lovushka_bonus_deadline';
+  var deadline;
+  try {
+    deadline = parseInt(localStorage.getItem(key) || '0', 10);
+    var now = Date.now();
+    if (!deadline || deadline < now) {
+      deadline = now + 24 * 60 * 60 * 1000;
+      localStorage.setItem(key, String(deadline));
+    }
+  } catch (e) {
+    deadline = Date.now() + 24 * 60 * 60 * 1000;
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function tick() {
+    var remaining = Math.max(0, deadline - Date.now());
+    var h = Math.floor(remaining / 3600000);
+    var m = Math.floor((remaining % 3600000) / 60000);
+    var s = Math.floor((remaining % 60000) / 1000);
+    var el = document.getElementById('bonusTimer');
+    if (el) el.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
